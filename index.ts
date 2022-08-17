@@ -1,19 +1,37 @@
-import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
-import { Client } from 'pg';
+import express, { Express, Request, Response } from 'express'
+import dotenv from "dotenv"
+import { Client } from "pg"
+import { graphqlHTTP } from "express-graphql"
+import { buildSchema } from "graphql"
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Express + TypeScript Server');
-});
+// Construct a schema, using GraphQL schema language
+var schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
+
+// The root provides a resolver function for each API endpoint
+var root = {
+    hello: () => {
+        return 'Hello world!';
+    },
+};
+
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    rootValue: root,
+    graphiql: true,
+}));
 
 app.listen(port, () => {
     console.log(`⚡️[Express]: Server is running at https://localhost:${port}`);
-});
+})
 
 
 const dataBase = async () => {
@@ -28,7 +46,6 @@ const dataBase = async () => {
     )
     client.connect()
     client.query('SELECT NOW()', (err, res) => {
-        console.log(err, res)
         client.end()
     })
     console.log('💾[PostgreSQL] Database connected')
