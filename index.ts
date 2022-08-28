@@ -7,7 +7,7 @@ import { buildSchema } from "graphql"
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
@@ -30,7 +30,7 @@ app.use('/graphql', graphqlHTTP({
 }));
 
 app.listen(port, () => {
-    console.log(`⚡️[Express]: Server is running at https://localhost:${port}`);
+    console.log(`⚡️[Express]: Server is running at port:${port}`);
 })
 
 
@@ -50,4 +50,4 @@ const dataBase = async () => {
     })
     console.log('💾[PostgreSQL] Database connected')
 }
-dataBase()
+//dataBase()
