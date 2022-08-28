@@ -2,30 +2,82 @@ import express, { Express, Request, Response } from 'express'
 import dotenv from "dotenv"
 import { Client } from "pg"
 import { graphqlHTTP } from "express-graphql"
-import { buildSchema } from "graphql"
+import { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLInt, GraphQLList } from "graphql"
+import joinMonster from "join-monster"
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 8080;
 
-// Construct a schema, using GraphQL schema language
-var schema = buildSchema(`
-  type Query {
-    hello: String
-  }
-`);
+interface companyArgs {
+    id: number | null
+    name: string | null
+    age: number | null
+    address: string | null
+    salary: number | null
+    join_date: string | null
+}
 
-// The root provides a resolver function for each API endpoint
-var root = {
-    hello: () => {
-        return 'Hello world!';
+const client = new Client(
+    {
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: parseInt(process.env.DB_PORT || '') || 5432,
+    }
+)
+client.connect()
+
+const Company = new GraphQLObjectType({
+    name: 'Company',
+    fields: () => ({
+        id: { type: GraphQLInt },
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        address: { type: GraphQLString },
+        salary: { type: GraphQLInt },
+        join_date: { type: GraphQLString },
+    }),
+    extensions: {
+        joinMonster: {
+            sqlTable: 'company',
+            uniqueKey: ['id']
+        }
     },
-};
+})
+
+const QueryRoot = new GraphQLObjectType({
+    name: 'Query',
+    fields: () => ({
+        hello: {
+            type: GraphQLString,
+            resolve: () => "Hello world!"
+        },
+        companies: {
+            type: new GraphQLList(Company),
+            resolve: (parent, args, context, resolveInfo) => joinMonster(resolveInfo, {}, (sql: any) => {
+                return client.query(sql)
+            })
+        },
+        player: {
+            type: Company,
+            args: { id: { type: GraphQLInt } },
+            where: (companyTable: companyArgs, args: companyArgs, context: any) => `${companyTable}.id = ${args.id}`,
+            resolve: (parent, args, context, resolveInfo) => {
+                return joinMonster(resolveInfo, {}, (sql: any) => {
+                    return client.query(sql)
+                })
+            }
+        },
+    })
+})
+
+const schema = new GraphQLSchema({ query: QueryRoot })
 
 app.use('/graphql', graphqlHTTP({
     schema: schema,
-    rootValue: root,
     graphiql: true,
 }));
 
@@ -33,21 +85,3 @@ app.listen(port, () => {
     console.log(`⚡️[Express]: Server is running at port:${port}`);
 })
 
-
-const dataBase = async () => {
-    const client = new Client(
-        {
-            host: '127.0.0.1',
-            user: 'postgres',
-            database: 'professy',
-            password: 'root',
-            port: 5432,
-        }
-    )
-    client.connect()
-    client.query('SELECT NOW()', (err, res) => {
-        client.end()
-    })
-    console.log('💾[PostgreSQL] Database connected')
-}
-//dataBase()
