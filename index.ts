@@ -55,7 +55,13 @@ const Helmet = new GraphQLObjectType({
         name: { type: GraphQLString },
         color: { type: GraphQLString },
         price: { type: GraphQLFloat },
-    })
+    }),
+    extensions: {
+        joinMonster: {
+            sqlTable: 'helmet',
+            uniqueKey: ['id']
+        }
+    }
 })
 
 const QueryRoot = new GraphQLObjectType({
