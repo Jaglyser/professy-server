@@ -1,9 +1,10 @@
-import User from "../model/User";
+import User from "../model/User"
 import { Request, Response } from "express"
-import { Model } from "sequelize";
 import { Controller } from "./Controller"
 import { v4 as uuidv4 } from 'uuid'
 import bcrypt from "bcryptjs"
+import { getUserByIdDao, getUserByUsernameDao } from "../dao/User"
+import { authenticateUser } from "./Authenticate"
 
 
 
@@ -20,11 +21,16 @@ export const getUsers: Controller = async (req, res) => {
 
 export const getUserById: Controller = async (req, res) => {
     try {
-        const user = await User.findOne({
-            where: {
-                id: req.params.id
-            }
-        })
+        const user = await getUserByIdDao(req.body.id)
+        res.send(user)
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const getUserByUsername: Controller = async (req, res) => {
+    try {
+        const user = await getUserByUsernameDao(req.body.username)
         res.send(user)
     } catch (err) {
         console.log(err)
@@ -32,6 +38,7 @@ export const getUserById: Controller = async (req, res) => {
 }
 
 export const createUser: Controller = async (req, res) => {
+    const auth = await authenticateUser(req.body.username)
     try {
         User.create({
             id: uuidv4(),
@@ -40,10 +47,11 @@ export const createUser: Controller = async (req, res) => {
             createdAt: Date.now(),
             updatedAt: Date.now()
         }).then(() => {
-            res.send({ "message": "success user has been created" })
+            res.status(auth.status).send(auth.send)
         })
+
     } catch (err) {
         console.log(err)
-        res.sendStatus(500).send(err)
+        res.status(500).send(err)
     }
 }
