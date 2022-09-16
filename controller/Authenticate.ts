@@ -69,3 +69,7 @@ export const signToken = async (secret: string, id: string) => {
         expiresIn: 3600
     })
 }
+
+export const authenticateSession: Controller = async (req, res) => {
+    res.sendStatus(200)
+}
