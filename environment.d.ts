@@ -7,8 +7,7 @@ declare global {
             DB_NAME: string,
             DB_PASSWORD: string,
             DB_PORT: number,
-
-            TOKEN_KEY: string
+            TOKEN_SECRET: string
         }
     }
 }

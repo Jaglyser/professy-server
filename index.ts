@@ -4,6 +4,7 @@ import express, { Express, Request, Response, Router } from 'express'
 import db from './database'
 import { router } from './routes'
 import cors from 'cors'
+import { authenticate } from './controller/Authenticate'
 
 
 const app: Express = express();
@@ -19,6 +20,7 @@ const init = async () => {
 
     app.use(express.json())
     app.use(cors())
+    app.use(authenticate)
 
     app.use(router)
 

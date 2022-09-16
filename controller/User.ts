@@ -38,6 +38,13 @@ export const getUserByUsername: Controller = async (req, res) => {
 }
 
 export const createUser: Controller = async (req, res) => {
+    const { username, password } = req.body
+
+
+    if (!username || !password) {
+        return res.status(500).send({ message: "Invalid arguments" })
+    }
+
     const auth = await authenticateUser(req.body.username)
     try {
         User.create({
@@ -52,6 +59,6 @@ export const createUser: Controller = async (req, res) => {
 
     } catch (err) {
         console.log(err)
-        res.status(500).send(err)
+        res.status(500).send("Invalid arguments")
     }
 }

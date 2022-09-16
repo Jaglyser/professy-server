@@ -1,3 +1,12 @@
 
 import { Request, Response } from "express"
-export type Controller = (req: Request, res: Response) => Promise<void>
+declare module 'express-serve-static-core' {
+    export interface Request {
+        decodedId?: string
+        token?: string
+    }
+    export interface Response {
+
+    }
+}
+export type Controller = (req: Request, res: Response) => Promise<any>
