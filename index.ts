@@ -24,6 +24,7 @@ const init = async () => {
 
     app.use(router)
 
+
     app.listen(port, () => {
         console.log(`⚡️[Express]: Server is running at port: ${port}`);
     })

@@ -8,6 +8,11 @@ import { NextFunction, Request, Response } from 'express'
 
 export const authenticateLogin: Controller = async (req, res) => {
     const { username, password } = req.body
+
+    if (!username) return res.status(403).send({ message: "No username provided" })
+    if (!password) return res.status(403).send({ message: "No password provided" })
+
+
     const user = await getUserByUsernameDao(username)
     if (!user) {
         res.status(403).send("Wrong username")
@@ -15,10 +20,12 @@ export const authenticateLogin: Controller = async (req, res) => {
         res.status(403).send("Wrong password")
     } else {
         const secret = process.env.TOKEN_SECRET
-        const token = await signToken(secret, user.toJSON().id)
+        const id = user.toJSON().id
+        const token = await signToken(secret, id)
         res.status(200).send({
             secret,
-            token
+            token,
+            id
         })
     }
 }
@@ -28,7 +35,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     let id = req.headers["involved-party-id"] as string
     let url = req.originalUrl
 
-    if (url == '/signup') {
+    if (url == '/signup' || url == '/authenticate') {
         return next()
     }
 
