@@ -6,7 +6,7 @@ const { DataTypes } = Sequelize
 const Product = db.define('products',
     {
         brand: { type: DataTypes.STRING },
-        catergory: { type: DataTypes.STRING },
+        category: { type: DataTypes.STRING },
         subCategory: { type: DataTypes.STRING },
         modelName: { type: DataTypes.STRING },
         shortDescription: { type: DataTypes.STRING },
@@ -19,7 +19,8 @@ const Product = db.define('products',
     {
         // freezeTableName: true,
         tableName: 'products',
-        schema: 'public'
+        schema: 'public',
+        timestamps: false
     }
 
 );

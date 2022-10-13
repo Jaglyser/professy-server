@@ -1,8 +1,8 @@
 CREATE TABLE products (
-    id uuid NOT NULL PRIMARY KEY,
+    id varchar(255) NOT NULL PRIMARY KEY,
     brand varchar(255), 
     category varchar(255), 
-    "subCatergory" varchar(255), 
+    "subCategory" varchar(255), 
     "modelName" varchar(255),
     "shortDescription" varchar(255),
     "longDescription" varchar(255),
